@@ -167,26 +167,39 @@ public class ComplexityExamples {
     }
 
     public void example5(int[][] matrix) {
+        /**
+         * This method processes a 2D integer matrix and prints out the position of each element,
+         * indicating whether it is zero or non-zero.
+         *
+         * @param matrix The 2D integer array (matrix) to be processed. Each element of the matrix
+         *               will be checked, and its position and value type (zero or non-zero) will
+         *               be printed.
+         */
+        // Loop through each row of the matrix
         for (int i = 0; i < matrix.length; i++) {
+            // Loop through each column of the current row
             for (int j = 0; j < matrix[i].length; j++) {
+                // Check if the current element is zero
                 if (matrix[i][j] == 0) {
                     System.out.println("Zero found at (" + i + "," + j + ")");
                 } else {
+                    // For non-zero elements, indicate their location
                     System.out.println("Non-zero at (" + i + "," + j + ")");
                 }
             }
         }
     }
 
+
     public void example6(List<Integer> numbers) {
         numbers.stream()
                 .filter(n -> n % 2 == 0)
                 .forEach(System.out::println);
-
+        // test for comments
         long count = numbers.stream()
                 .filter(n -> n > 5)
                 .count();
-
+        // another comment
         System.out.println("Count of numbers greater than 5: " + count);
     }
 }
