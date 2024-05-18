@@ -1,6 +1,5 @@
 package org.example;
 
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ArrayType;
@@ -14,30 +13,19 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 class OperandVisitor extends VoidVisitorAdapter<Void> {
-    public Map<String, ArrayList<String>> getOperands() {
-        return operands;
-    }
-    public ArrayList<String> getOperandsForClassMethod(String className, String methodName) {
-        return operands.getOrDefault(className + ":" + methodName, new ArrayList<>());
+    public ArrayList<String> getOperandsForClassMethod(String methodName) {
+        return operands.getOrDefault(methodName, new ArrayList<>());
     }
 
     private final Map<String, ArrayList<String>> operands = new HashMap<>();
 
-    private String currentClassName = "";
     private String currentMethodName = "";
 
     private void addToMap(Map<String, ArrayList<String>> operators, String currentOperator, String className) {
-        var key = currentClassName + ":" + currentMethodName;
+        var key = currentMethodName;
         var newOperators = operators.getOrDefault(key, new ArrayList<>());
         newOperators.add(String.format("%-25s", className) + currentOperator);
         operators.put(key, newOperators);
-    }
-
-    @Override
-    public void visit(ClassOrInterfaceDeclaration n, Void arg) {
-        currentClassName = n.getNameAsString();
-        super.visit(n, arg);
-        currentClassName = "";
     }
 
     @Override
