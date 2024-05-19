@@ -18,6 +18,10 @@ public class Main {
             var jp = new JavaParser();
             ParseResult<CompilationUnit> cu = jp.parse(in);
 
+            if (!cu.isSuccessful()) {
+                throw new IllegalStateException("unable to analyze file " + javaFilepath);
+            }
+
             Map<String, List<MethodDetails>> classesAndMethods = new HashMap<>();
             cu.getResult().orElseThrow().accept(new ClassVisitor(), classesAndMethods);
 

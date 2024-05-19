@@ -25,8 +25,15 @@ public class HalsteadVolumeCalculator {
         var numOfOperandsUnique = operands.stream().distinct().count();
 
         var programVocabulary = numOfOperatorsUnique + numOfOperandsUnique;
+        if (programVocabulary == 0) {
+            throw new IllegalStateException("programVocabulary is empty");
+        }
         var programLength = numOfOperators + numOfOperands;
 
-        return (programLength * (Math.log(programVocabulary) / Math.log(2)));
+        double halsteadVolume = programLength * (Math.log(programVocabulary) / Math.log(2));
+        if (halsteadVolume <= 0) {
+            throw new IllegalStateException("halsteadVolume is 0");
+        }
+        return halsteadVolume;
     }
 }

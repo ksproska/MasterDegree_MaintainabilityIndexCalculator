@@ -9,10 +9,18 @@ import java.time.format.DateTimeFormatter;
 
 public class MaintainabilityIndexCalculator {
     public static MaintainabilityIndexResult calculateMI(ParseResult<CompilationUnit> cu, String className, MethodDetails method) throws IOException {
-        var halsteadVolume = HalsteadVolumeCalculator.getHalsteadVolumeForClassMethod(cu, className, method.methodName());
+        double halsteadVolume;
+        try {
+            halsteadVolume = HalsteadVolumeCalculator.getHalsteadVolumeForClassMethod(cu, className, method.methodName());
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("For\n" + method.methodContent() + "\n" + e.getMessage());
+        }
         var loc = LinesOfCodeCounter.getLOCForClassMethod(cu, className, method.methodName());
         var cc = CyclomaticComplexityCalculator.calculateCyclomaticComplexityForClassMethod(cu, className, method.methodName());
         var microsoftMi = (int) ((171.0 - 5.2 * Math.log(halsteadVolume) - 0.23 * cc - 16.2 * Math.log(loc)) * (100.0 / 171.0));
+        if (microsoftMi < 0) {
+            throw new IllegalStateException("microsoftMi is equal or less than 0");
+        }
         var grade = "G";
         if (microsoftMi <= 10) {
             grade = "R";
@@ -54,7 +62,7 @@ public class MaintainabilityIndexCalculator {
 
             try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
                 if (!fileExists) {
-                    writer.println("ClassName,MethodName,HalsteadVolume,CC,LOC,MicrosoftMI,Grade,CodeFilename");
+                    writer.println("ClassName,MethodName,Halstead Volume,Cyclomatic Complexity (CC),Lines Of Code (LOC),Microsoft Maintainability Index (MI),Grade,CodeFilename");
                 }
                 writer.printf("%s,%s,%.2f,%d,%d,%d,%s,%s%n", className, method.methodName(), halsteadVolume, cc, loc, microsoftMi, grade, codeFile.getName());
             } catch (IOException e) {
