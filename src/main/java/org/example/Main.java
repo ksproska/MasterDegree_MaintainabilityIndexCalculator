@@ -11,20 +11,22 @@ public class Main {
     public static void main(String[] args) {
         String javaFilepath = "src/test/resources/ComplexityExamples.java";
         String outputRaport = "raport.csv";
+        String outputCodeDir = "raportCode";
         removeEmptyLines(javaFilepath);
 
         try (FileInputStream in = new FileInputStream(javaFilepath)) {
             var jp = new JavaParser();
             ParseResult<CompilationUnit> cu = jp.parse(in);
 
-            Map<String, List<String>> classesAndMethods = new HashMap<>();
+            Map<String, List<MethodDetails>> classesAndMethods = new HashMap<>();
             cu.getResult().orElseThrow().accept(new ClassVisitor(), classesAndMethods);
 
             for (var className : classesAndMethods.keySet()) {
                 var methods = classesAndMethods.get(className);
-                for (var methodName: methods) {
-                    var res = MaintainabilityIndexCalculator.calculateMI(cu, className, methodName);
-                    res.saveToFile(outputRaport);
+                for (var method: methods) {
+                    var res = MaintainabilityIndexCalculator.calculateMI(cu, className, method);
+                    res.saveToFile(outputRaport, outputCodeDir);
+                    res.print();
                 }
             }
         } catch (Exception e) {

@@ -8,13 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ClassVisitor extends VoidVisitorAdapter<Map<String, List<String>>> {
+public class ClassVisitor extends VoidVisitorAdapter<Map<String, List<MethodDetails>>> {
     @Override
-    public void visit(ClassOrInterfaceDeclaration cid, Map<String, List<String>> collector) {
+    public void visit(ClassOrInterfaceDeclaration cid, Map<String, List<MethodDetails>> collector) {
         super.visit(cid, collector);
-        List<String> methodsList = new ArrayList<>();
+        List<MethodDetails> methodsList = new ArrayList<>();
         for (MethodDeclaration method : cid.getMethods()) {
-            methodsList.add(method.getNameAsString());
+            methodsList.add(new MethodDetails(
+                    method.getNameAsString(),
+                    method.getDeclarationAsString(true, true, true) + " "
+                            + method.getBody().orElseThrow()
+                    )
+            );
         }
         collector.put(cid.getNameAsString(), methodsList);
     }
