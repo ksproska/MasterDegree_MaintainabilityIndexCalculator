@@ -5,13 +5,28 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        String javaFilepath = "src/test/resources/ComplexityExamples.java";
+        String javaPathsFile = "java_files_list.txt";
         String outputRaport = "raport.csv";
         String outputCodeDir = "raportCode";
+
+        try {
+            List<String> fileLines = Files.readAllLines(Paths.get(javaPathsFile));
+            for (String javaFilepath : fileLines) {
+                System.out.println("Analyzing file " + javaFilepath);
+                analyzeGivenJavaFile(javaFilepath, outputRaport, outputCodeDir);
+            }
+        } catch (IOException | IllegalStateException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+
+    private static void analyzeGivenJavaFile(String javaFilepath, String outputRaport, String outputCodeDir) {
         removeEmptyLines(javaFilepath);
 
         try (FileInputStream in = new FileInputStream(javaFilepath)) {
