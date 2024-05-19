@@ -20,23 +20,22 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OperandVisitorTest {
+class OperatorVisitorTest {
     record TestData(String pathToFile, String className, String methodName) {}
 
     @TestFactory
-    Stream<DynamicTest> getOperandsForClassMethod() {
+    Stream<DynamicTest> getOperatorsForClassMethod() {
         List<TestData> testDataList = Arrays.asList(
                 new TestData("src/test/resources/OldProjectExample.java", "Example", "binSearch"),
                 new TestData("src/test/resources/Example1.java", "Example", "example"),
                 new TestData("src/test/resources/Example2.java", "Example", "example"),
                 new TestData("src/test/resources/Example3.java", "Example", "example"),
                 new TestData("src/test/resources/Example4.java", "Example", "example"),
-                new TestData("src/test/resources/Example5.java", "Example", "example"),
-                new TestData("src/test/resources/Example6.java", "Example", "getDetailed")
+                new TestData("src/test/resources/Example5.java", "Example", "example")
         );
 
         return testDataList.stream().map(data ->
-                DynamicTest.dynamicTest("Test Operand visitor for " + data.pathToFile + ":" + data.className + "." + data.methodName,
+                DynamicTest.dynamicTest("Test Operator visitor for " + data.pathToFile + ":" + data.className + "." + data.methodName,
                         () -> {
                             FileInputStream in = new FileInputStream(data.pathToFile);
                             ParseResult<CompilationUnit> compilationUnit = new JavaParser().parse(in);
@@ -48,24 +47,25 @@ class OperandVisitorTest {
                             ClassOrInterfaceDeclaration classDec = compilationUnit.getResult().orElseThrow().getClassByName(data.className).orElseThrow();
                             MethodDeclaration method = classDec.getMethodsByName(data.methodName).stream().findFirst().orElseThrow();
 
-                            OperandVisitor operandVisitor = new OperandVisitor();
-                            method.accept(operandVisitor, null);
+                            OperatorVisitor operatorVisitor = new OperatorVisitor();
+                            method.accept(operatorVisitor, null);
+//                            operatorVisitor.printCounts();
 
-                            var operandsDistinct = operandVisitor.getDistinctOperands(data.methodName);
+                            var operatorsDistinct = operatorVisitor.getDistinctOperators(data.methodName);
 
-                            var getDistinctOperandsFromOldMethod = getDistinctOperands(data.pathToFile)
+                            var getDistinctOperatorsFromOldMethod = getDistinctOperators(data.pathToFile)
                                     .stream()
                                     .filter(x -> !x.equals(data.className))
                                     .filter(x -> !x.equals(data.methodName))
                                     .distinct()
                                     .toList();
-                            assertEquals(getDistinctOperandsFromOldMethod.toString(), operandsDistinct.toString());
-                            assertEquals(getDistinctOperandsFromOldMethod.size(), operandVisitor.getDistinctOperandsCount(data.methodName));
+                            assertEquals(getDistinctOperatorsFromOldMethod.toString(), operatorsDistinct.toString());
+                            assertEquals(getDistinctOperatorsFromOldMethod.size(), operatorVisitor.getDistinctOperatorsCount(data.methodName));
                         })
         );
     }
 
-    private static List<String> getDistinctOperands(String pathToFile) throws IOException {
+    private static List<String> getDistinctOperators(String pathToFile) throws IOException {
         var content = Files.readString(Path.of(pathToFile));
         ASTParser parser = ASTParser.newParser(AST.JLS3);
         parser.setSource(content.toCharArray());
@@ -75,6 +75,6 @@ class OperandVisitorTest {
 
         var visitor = new ASTVisitorMod();
         cu.accept(visitor);
-        return visitor.getDistinctOperands();
+        return visitor.getDistinctOperators();
     }
 }

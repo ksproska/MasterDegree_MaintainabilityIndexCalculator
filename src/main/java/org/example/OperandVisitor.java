@@ -1,15 +1,15 @@
 package org.example;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.stmt.CatchClause;
+import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class OperandVisitor extends VoidVisitorAdapter<Void> {
     public List<String> getOperandsForClassMethod(String methodName) {
@@ -21,9 +21,11 @@ class OperandVisitor extends VoidVisitorAdapter<Void> {
     public int getAllOperandsCount(String methodName) {
         return operands.getOrDefault(methodName, new ArrayList<>()).size();
     }
+
     public int getDistinctOperandsCount(String methodName) {
         return operands.getOrDefault(methodName, new ArrayList<>()).stream().distinct().toList().size();
     }
+
     public List<String> getDistinctOperands(String methodName) {
         return operands.getOrDefault(methodName, new ArrayList<>()).stream().distinct().sorted().toList();
     }
@@ -39,7 +41,12 @@ class OperandVisitor extends VoidVisitorAdapter<Void> {
 
     @Override
     public void visit(MethodDeclaration n, Void arg) {
-        currentMethodName = n.getNameAsString();
+        if (Objects.equals(currentMethodName, "")) {
+            currentMethodName = n.getNameAsString();
+        } else {
+            addToMap(operands, n.getNameAsString(), n.getClass().getSimpleName());
+            n.getAnnotations().forEach(a -> addToMap(operands, a.getNameAsString(), n.getClass().getSimpleName()));
+        }
         super.visit(n, arg);
         currentMethodName = "";
     }
@@ -101,9 +108,40 @@ class OperandVisitor extends VoidVisitorAdapter<Void> {
     @Override
     public void visit(VariableDeclarator n, Void arg) {
         String varName = n.getNameAsString();
-        if (!currentMethodName.isEmpty()) {  // Ensure we are within a method context
+        if (!currentMethodName.isEmpty()) {
             addToMap(operands, varName, n.getClass().getSimpleName());
         }
+        super.visit(n, arg);
+    }
+
+    @Override
+    public void visit(ObjectCreationExpr n, Void arg) {
+        addToMap(operands, n.getType().toString(), n.getClass().getSimpleName());
+        n.getType().accept(this, arg);
+        super.visit(n, arg);
+    }
+
+    @Override
+    public void visit(Parameter n, Void arg) {
+        addToMap(operands, n.getNameAsString(), n.getClass().getSimpleName());
+        super.visit(n, arg);
+    }
+
+    @Override
+    public void visit(CatchClause n, Void arg) {
+        addToMap(operands, n.getParameter().getType().toString(), n.getClass().getSimpleName());
+        super.visit(n, arg);
+    }
+
+    @Override
+    public void visit(ThrowStmt n, Void arg) {
+        addToMap(operands, n.getExpression().toString(), n.getClass().getSimpleName());
+        super.visit(n, arg);
+    }
+
+    @Override
+    public void visit(FieldAccessExpr n, Void arg) {
+        addToMap(operands, n.getNameAsString(), n.getClass().getSimpleName());
         super.visit(n, arg);
     }
 

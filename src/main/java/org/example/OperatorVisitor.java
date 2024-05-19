@@ -2,14 +2,12 @@ package org.example;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 class OperatorVisitor extends VoidVisitorAdapter<Void> {
 
@@ -19,12 +17,24 @@ class OperatorVisitor extends VoidVisitorAdapter<Void> {
 
     private final Map<String, ArrayList<String>> operators = new HashMap<>();
 
+    public int getAllOperatorsCount(String methodName) {
+        return operators.getOrDefault(methodName, new ArrayList<>()).size();
+    }
+
+    public int getDistinctOperatorsCount(String methodName) {
+        return operators.getOrDefault(methodName, new ArrayList<>()).stream().distinct().toList().size();
+    }
+
+    public List<String> getDistinctOperators(String methodName) {
+        return operators.getOrDefault(methodName, new ArrayList<>()).stream().distinct().sorted().toList();
+    }
+
     private String currentMethodName = "";
 
     private void addToMap(Map<String, ArrayList<String>> operators, String currentOperator, String className) {
         var key = currentMethodName;
         var newOperators = operators.getOrDefault(key, new ArrayList<>());
-        newOperators.add(String.format("%-25s", className) + currentOperator);
+        newOperators.add(currentOperator);
         operators.put(key, newOperators);
     }
 
@@ -55,44 +65,14 @@ class OperatorVisitor extends VoidVisitorAdapter<Void> {
     }
 
     @Override
-    public void visit(InstanceOfExpr n, Void arg) {
-        addToMap(operators, "instanceof", n.getClass().getSimpleName());
-        super.visit(n, arg);
-    }
-
-    @Override
     public void visit(AssignExpr n, Void arg) {
         addToMap(operators, n.getOperator().asString(), n.getClass().getSimpleName());
         super.visit(n, arg);
     }
 
-//        @Override
-//        public void visit(MethodCallExpr n, Void arg) {
-//            addToMap(operators, String.format("%-25s", "MethodCallExpr") + n.getNameAsString());
-//            super.visit(n, arg);
-//        }
-
     @Override
-    public void visit(IfStmt n, Void arg) {
-        addToMap(operators, "if", n.getClass().getSimpleName());
+    public void visit(VariableDeclarationExpr n, Void arg) {
+        addToMap(operators, "=", n.getClass().getSimpleName());
         super.visit(n, arg);
-    }
-
-    @Override
-    public void visit(TryStmt n, Void arg) {
-        addToMap(operators, "try", n.getClass().getSimpleName());
-        super.visit(n, arg);
-    }
-
-    public void printCounts() {
-        System.out.println("> Operators:");
-        for (String method : operators.keySet()) {
-            ArrayList<String> literals = operators.get(method);
-            System.out.println(
-                    String.format("%-35s", method)
-                            + " (" + literals.size() + ", " + literals.stream().distinct().count() + ")\n"
-                            + literals.stream().distinct().sorted().collect(Collectors.joining("\n")) + "\n"
-            );
-        }
     }
 }
