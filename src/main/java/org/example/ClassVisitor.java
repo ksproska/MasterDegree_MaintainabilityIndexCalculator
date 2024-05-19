@@ -14,12 +14,14 @@ public class ClassVisitor extends VoidVisitorAdapter<Map<String, List<MethodDeta
         super.visit(cid, collector);
         List<MethodDetails> methodsList = new ArrayList<>();
         for (MethodDeclaration method : cid.getMethods()) {
-            methodsList.add(new MethodDetails(
-                    method.getNameAsString(),
-                    method.getDeclarationAsString(true, true, true) + " "
-                            + method.getBody().orElseThrow()
-                    )
-            );
+            if (!method.getBody().orElseThrow().toString().equals("{\n}")) {
+                methodsList.add(new MethodDetails(
+                                method.getNameAsString(),
+                                method.getDeclarationAsString(true, true, true) + " "
+                                        + method.getBody().orElseThrow()
+                        )
+                );
+            }
         }
         collector.put(cid.getNameAsString(), methodsList);
     }
