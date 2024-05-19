@@ -21,13 +21,18 @@ public class Main {
             Map<String, List<MethodDetails>> classesAndMethods = new HashMap<>();
             cu.getResult().orElseThrow().accept(new ClassVisitor(), classesAndMethods);
 
-            for (var className : classesAndMethods.keySet()) {
+            List<MaintainabilityIndexCalculator.MaintainabilityIndexResult> miResults = new ArrayList<>();
+            for(var className : classesAndMethods.keySet()) {
                 var methods = classesAndMethods.get(className);
                 for (var method: methods) {
                     var res = MaintainabilityIndexCalculator.calculateMI(cu, className, method);
-                    res.saveToFile(outputRaport, outputCodeDir);
-                    res.print();
+                    miResults.add(res);
                 }
+            }
+            miResults.sort(Comparator.comparingInt(MaintainabilityIndexCalculator.MaintainabilityIndexResult::microsoftMi).reversed());
+            for (var res: miResults) {
+                res.saveToFile(outputRaport, outputCodeDir);
+                res.print();
             }
         } catch (Exception e) {
             e.printStackTrace();
