@@ -8,7 +8,7 @@ import org.example.records.MethodDetails;
 import java.io.*;
 
 public class MaintainabilityIndexCalculator {
-    public static MaintainabilityIndexResult calculateMI(ParseResult<CompilationUnit> cu, String className, MethodDetails method) throws IOException {
+    public static MaintainabilityIndexResult calculateMI(ParseResult<CompilationUnit> cu, String className, MethodDetails method, String originalJavaFilepath) throws IOException {
         double halsteadVolume;
         try {
             halsteadVolume = HalsteadVolumeCalculator.getHalsteadVolumeForClassMethod(cu, className, method.methodName());
@@ -28,6 +28,6 @@ public class MaintainabilityIndexCalculator {
             grade = "Y";
         }
 
-        return new MaintainabilityIndexResult(className, method, halsteadVolume, cc, loc, microsoftMi, grade);
+        return new MaintainabilityIndexResult(className, method, halsteadVolume, cc, loc, microsoftMi, grade, originalJavaFilepath);
     }
 }

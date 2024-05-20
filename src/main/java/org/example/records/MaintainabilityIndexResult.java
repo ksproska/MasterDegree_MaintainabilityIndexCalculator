@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public record MaintainabilityIndexResult(String className, MethodDetails method, double halsteadVolume, int cc, int loc,
-                                         int microsoftMi, String grade) {
+                                         int microsoftMi, String grade, String originalFilePath) {
     void print() {
         System.out.println(className + ":" + method.methodName());
         System.out.println(method.methodContent());
@@ -36,9 +36,9 @@ public record MaintainabilityIndexResult(String className, MethodDetails method,
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
             if (!fileExists) {
-                writer.println("ClassName,MethodName,Halstead Volume,Cyclomatic Complexity (CC),Lines Of Code (LOC),Microsoft Maintainability Index (MI),Grade,CodeFilename");
+                writer.println("ClassName,MethodName,Halstead Volume,Cyclomatic Complexity (CC),Lines Of Code (LOC),Microsoft Maintainability Index (MI),Grade,CodeFilename,OriginalFilePath");
             }
-            writer.printf("%s,%s,%.2f,%d,%d,%d,%s,%s%n", className, method.methodName(), halsteadVolume, cc, loc, microsoftMi, grade, codeFile.getName());
+            writer.printf("%s,%s,%.2f,%d,%d,%d,%s,%s,%s%n", className, method.methodName(), halsteadVolume, cc, loc, microsoftMi, grade, codeFile.getName(), originalFilePath);
         } catch (IOException e) {
             throw new IllegalStateException();
         }

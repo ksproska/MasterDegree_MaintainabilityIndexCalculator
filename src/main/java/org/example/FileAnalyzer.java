@@ -66,7 +66,7 @@ public class FileAnalyzer {
                 var methods = classesAndMethods.get(className);
                 for (var method : methods) {
                     try {
-                        var res = MaintainabilityIndexCalculator.calculateMI(cu, className, method);
+                        var res = MaintainabilityIndexCalculator.calculateMI(cu, className, method, javaFilepath);
                         miResults.add(res);
                     } catch (NoSuchElementException e) {
                         throw new MethodBodyNotFoundException("unable to find method " + method.methodName() + "in file" + javaFilepath);
