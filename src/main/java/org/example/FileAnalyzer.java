@@ -3,13 +3,45 @@ package org.example;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import me.tongfei.progressbar.ProgressBar;
+import org.example.calculators.MaintainabilityIndexCalculator;
 import org.example.exceptions.CompilationUnitException;
 import org.example.exceptions.MethodBodyNotFoundException;
+import org.example.records.MaintainabilityIndexResult;
+import org.example.records.MethodDetails;
+import org.example.visitors.ClassVisitor;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class FileAnalyzer {
+    static void processFiles(String javaPathsFile, String outputRaport, String outputCodeDir) {
+        List<String> fileLines = null;
+        try {
+            fileLines = Files.readAllLines(Paths.get(javaPathsFile));
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+
+        var counter = 0;
+        ProgressBar pb = new ProgressBar("Analyzing files", fileLines.size());
+        for (String javaFilepath : fileLines) {
+            var compilationErrors = analyzeGivenJavaFile(javaFilepath, outputRaport, outputCodeDir);
+            for (var err : compilationErrors) {
+                if (!(err instanceof CompilationUnitException || err instanceof MethodBodyNotFoundException)) {
+//                    System.out.println("Analyzing file " + javaFilepath);
+//                    err.printStackTrace();
+                    counter += 1;
+                }
+            }
+            pb.step();
+        }
+        pb.close();
+        System.out.println("" + counter + " failed");
+    }
+
     static List<Exception> analyzeGivenJavaFile(String javaFilepath, String outputRaport, String outputCodeDir) {
         removeEmptyLines(javaFilepath);
 
@@ -29,7 +61,7 @@ public class FileAnalyzer {
                 throw new MethodBodyNotFoundException("unable to find method names in file " + javaFilepath);
             }
 
-            List<MaintainabilityIndexCalculator.MaintainabilityIndexResult> miResults = new ArrayList<>();
+            List<MaintainabilityIndexResult> miResults = new ArrayList<>();
             for (var className : classesAndMethods.keySet()) {
                 var methods = classesAndMethods.get(className);
                 for (var method : methods) {
@@ -41,7 +73,7 @@ public class FileAnalyzer {
                     }
                 }
             }
-            miResults.sort(Comparator.comparingInt(MaintainabilityIndexCalculator.MaintainabilityIndexResult::microsoftMi).reversed());
+            miResults.sort(Comparator.comparingInt(MaintainabilityIndexResult::microsoftMi).reversed());
             for (var res : miResults) {
                 res.saveToFile(outputRaport, outputCodeDir);
             }

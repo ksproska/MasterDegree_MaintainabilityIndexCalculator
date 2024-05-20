@@ -1,9 +1,11 @@
-package org.example;
+package org.example.calculators;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import org.example.visitors.OperandVisitor;
+import org.example.visitors.OperatorVisitor;
 
 public class HalsteadVolumeCalculator {
     public static double getHalsteadVolumeForClassMethod(ParseResult<CompilationUnit> cu, String className, String methodName) {

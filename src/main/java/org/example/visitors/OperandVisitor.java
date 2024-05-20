@@ -1,4 +1,4 @@
-package org.example;
+package org.example.visitors;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -11,7 +11,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.*;
 
-class OperandVisitor extends VoidVisitorAdapter<Void> {
+public class OperandVisitor extends VoidVisitorAdapter<Void> {
     public List<String> getOperandsForClassMethod(String methodName) {
         return operands.getOrDefault(methodName, new ArrayList<>()).stream().sorted().toList();
     }

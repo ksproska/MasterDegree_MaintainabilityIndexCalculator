@@ -3,6 +3,7 @@ package org.example;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import org.example.calculators.LinesOfCodeCalculator;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LinesOfCodeCounterTest {
+class LinesOfCodeCalculatorTest {
 
     record TestData(String pathToFile, String className, String methodName, int expectedLinesOfCode) {}
 
@@ -46,7 +47,7 @@ class LinesOfCodeCounterTest {
                                 throw new AssertionError("Failed to parse the file.");
                             }
 
-                            int actualLinesOfCode = LinesOfCodeCounter.getLOCForClassMethod(compilationUnit, data.className, data.methodName);
+                            int actualLinesOfCode = LinesOfCodeCalculator.getLOCForClassMethod(compilationUnit, data.className, data.methodName);
 
                             assertEquals(data.expectedLinesOfCode, actualLinesOfCode, "Lines of code do not match the expected value.");
                         })

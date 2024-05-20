@@ -1,4 +1,4 @@
-package org.example;
+package org.example.calculators;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;

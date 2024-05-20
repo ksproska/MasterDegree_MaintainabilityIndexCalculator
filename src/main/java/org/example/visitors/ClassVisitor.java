@@ -1,8 +1,9 @@
-package org.example;
+package org.example.visitors;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import org.example.records.MethodDetails;
 
 import java.util.ArrayList;
 import java.util.List;

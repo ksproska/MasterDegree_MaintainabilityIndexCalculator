@@ -1,11 +1,11 @@
-package org.example;
+package org.example.calculators;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
-public class LinesOfCodeCounter {
+public class LinesOfCodeCalculator {
 
     public static int getLOCForClassMethod(ParseResult<CompilationUnit> cu, String className, String methodName) {
         ClassOrInterfaceDeclaration classDec = cu.getResult().orElseThrow().getClassByName(className).orElseThrow();

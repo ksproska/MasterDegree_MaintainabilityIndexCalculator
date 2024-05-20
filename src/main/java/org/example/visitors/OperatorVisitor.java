@@ -1,4 +1,4 @@
-package org.example;
+package org.example.visitors;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class OperatorVisitor extends VoidVisitorAdapter<Void> {
+public class OperatorVisitor extends VoidVisitorAdapter<Void> {
 
     public ArrayList<String> getOperatorsForClassMethod(String methodName) {
         return operators.getOrDefault(methodName, new ArrayList<>());

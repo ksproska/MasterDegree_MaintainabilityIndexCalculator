@@ -3,6 +3,7 @@ package org.example;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.example.old.ASTVisitorMod;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
