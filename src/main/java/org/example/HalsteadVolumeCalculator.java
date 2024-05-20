@@ -30,6 +30,10 @@ public class HalsteadVolumeCalculator {
         }
         var programLength = numOfOperators + numOfOperands;
 
-        return programLength * (Math.log(programVocabulary) / Math.log(2));
+        double halsteadVolume = programLength * (Math.log(programVocabulary) / Math.log(2));
+        if (0 == (int) halsteadVolume) {
+            throw new IllegalStateException("halsteadVolume is 0");
+        }
+        return halsteadVolume;
     }
 }
