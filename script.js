@@ -29,3 +29,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+var paragraphs = document.querySelectorAll(".copyText");
+paragraphs.forEach(function(paragraph) {
+    paragraph.onclick = function() {
+        var range = document.createRange();
+        range.selectNode(paragraph);
+
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();
+    };
+});

@@ -28,7 +28,7 @@ td:first-child {
 }
 
 .code-container {
-    max-height: 160px; /* approx 10 lines, depending on your line height */
+    max-height: 60px; /* approx 10 lines, depending on your line height */
     overflow: hidden;
     position: relative;
     cursor: pointer;
