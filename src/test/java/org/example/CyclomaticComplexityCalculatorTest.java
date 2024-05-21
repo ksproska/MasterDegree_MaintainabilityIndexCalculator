@@ -33,7 +33,17 @@ class CyclomaticComplexityCalculatorTest {
                 new TestData(pathToFile, "ComplexityExamples", "example3", 4),
                 new TestData(pathToFile, "ComplexityExamples", "example4", 5),
                 new TestData(pathToFile, "ComplexityExamples", "example5", 4),
-                new TestData(pathToFile, "ComplexityExamples", "example6", 1)
+                new TestData(pathToFile, "ComplexityExamples", "example6", 1),
+                new TestData("src/test/resources/Example1.java", "Example", "example", 11),
+                new TestData("src/test/resources/Example2.java", "Example", "example", 1),
+                new TestData("src/test/resources/Example3.java", "Example", "example", 1),
+                new TestData("src/test/resources/Example4.java", "Example", "example", 1),
+                new TestData("src/test/resources/Example5.java", "Example", "example", 1),
+                new TestData("src/test/resources/Example6.java", "Example", "getDetailed", 1),
+                new TestData("src/test/resources/Example7.java", "Example", "run", 94),
+                new TestData("src/test/resources/Example8.java", "Example", "initializeReservedRoles", 1),
+                new TestData("src/test/resources/Example9.java", "Example", "getParserDescription", 1),
+                new TestData("src/test/resources/Example10.java", "Example", "deploy", 66)
         );
 
         return testDataList.stream().map(data ->

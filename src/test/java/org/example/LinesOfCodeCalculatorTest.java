@@ -34,11 +34,21 @@ class LinesOfCodeCalculatorTest {
                 new TestData(pathToFile, "ComplexityExamples", "example3", 12),
                 new TestData(pathToFile, "ComplexityExamples", "example4", 9),
                 new TestData(pathToFile, "ComplexityExamples", "example5", 11),
-                new TestData(pathToFile, "ComplexityExamples", "example6", 9)
+                new TestData(pathToFile, "ComplexityExamples", "example6", 9),
+                new TestData("src/test/resources/Example1.java", "Example", "example", 34),
+                new TestData("src/test/resources/Example2.java", "Example", "example", 1),
+                new TestData("src/test/resources/Example3.java", "Example", "example", 3),
+                new TestData("src/test/resources/Example4.java", "Example", "example", 11),
+                new TestData("src/test/resources/Example5.java", "Example", "example", 8),
+                new TestData("src/test/resources/Example6.java", "Example", "getDetailed", 3),
+                new TestData("src/test/resources/Example7.java", "Example", "run", 388),
+                new TestData("src/test/resources/Example8.java", "Example", "initializeReservedRoles", 3),
+                new TestData("src/test/resources/Example9.java", "Example", "getParserDescription", 3),
+                new TestData("src/test/resources/Example10.java", "Example", "deploy", 223)
         );
 
         return testDataList.stream().map(data ->
-                DynamicTest.dynamicTest("Test LOC for " + data.className + "." + data.methodName,
+                DynamicTest.dynamicTest("Test LOC for " + data.pathToFile + ":" + data.className + "." + data.methodName,
                         () -> {
                             FileInputStream in = new FileInputStream(data.pathToFile);
                             ParseResult<CompilationUnit> compilationUnit = new JavaParser().parse(in);
