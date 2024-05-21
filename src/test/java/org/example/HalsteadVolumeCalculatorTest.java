@@ -21,7 +21,7 @@ class HalsteadVolumeCalculatorTest {
     Stream<DynamicTest> dynamicHalsteadVolumeTests() {
         String pathToFile = "src/test/resources/ComplexityExamples.java";
         List<TestData> testDataList = Arrays.asList(
-                new TestData(pathToFile, "ComplexityExamples", "calculateScore", 276.90),
+                new TestData(pathToFile, "ComplexityExamples", "calculateScore", 261.52),
                 new TestData(pathToFile, "ComplexityExamples", "isHighScore", 6.34),
                 new TestData(pathToFile, "ComplexityExamples", "binSearch", 273.99)
         );

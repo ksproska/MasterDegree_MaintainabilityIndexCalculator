@@ -34,7 +34,11 @@ class OperandVisitorTest {
                 new TestData("src/test/resources/Example3.java", "Example", "example"),
                 new TestData("src/test/resources/Example4.java", "Example", "example"),
                 new TestData("src/test/resources/Example5.java", "Example", "example"),
-                new TestData("src/test/resources/Example6.java", "Example", "getDetailed")
+                new TestData("src/test/resources/Example6.java", "Example", "getDetailed"),
+                new TestData("src/test/resources/Example7.java", "Example", "run"),
+                new TestData("src/test/resources/Example8.java", "Example", "initializeReservedRoles"),
+                new TestData("src/test/resources/Example9.java", "Example", "getParserDescription"),
+                new TestData("src/test/resources/Example10.java", "Example", "deploy")
         );
 
         return testDataList.stream().map(data ->
@@ -53,15 +57,14 @@ class OperandVisitorTest {
                             OperandVisitor operandVisitor = new OperandVisitor();
                             method.accept(operandVisitor, null);
 
-                            var operandsDistinct = operandVisitor.getDistinctOperands(data.methodName);
-
-                            var getDistinctOperandsFromOldMethod = getDistinctOperands(data.pathToFile)
+                            List<String> operandsDistinct = operandVisitor.getDistinctOperands(data.methodName);
+                            List<String> getDistinctOperandsFromOldMethod = getDistinctOperands(data.pathToFile)
                                     .stream()
                                     .filter(x -> !x.equals(data.className))
                                     .filter(x -> !x.equals(data.methodName))
                                     .distinct()
                                     .toList();
-                            assertEquals(getDistinctOperandsFromOldMethod.toString(), operandsDistinct.toString());
+                            assertEquals(getDistinctOperandsFromOldMethod, operandsDistinct);
                             assertEquals(getDistinctOperandsFromOldMethod.size(), operandVisitor.getDistinctOperandsCount(data.methodName));
                         })
         );

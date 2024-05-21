@@ -1,7 +1,10 @@
 package org.example.visitors;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.ArrayList;
@@ -54,13 +57,6 @@ public class OperatorVisitor extends VoidVisitorAdapter<Void> {
     @Override
     public void visit(UnaryExpr n, Void arg) {
         addToMap(operators, n.getOperator().asString(), n.getClass().getSimpleName());
-        super.visit(n, arg);
-    }
-
-    @Override
-    public void visit(ConditionalExpr n, Void arg) {
-        addToMap(operators, "?", n.getClass().getSimpleName());
-        addToMap(operators, ":", n.getClass().getSimpleName());
         super.visit(n, arg);
     }
 

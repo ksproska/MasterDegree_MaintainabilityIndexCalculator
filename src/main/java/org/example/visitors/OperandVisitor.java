@@ -5,7 +5,6 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.CatchClause;
-import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
@@ -95,7 +94,7 @@ public class OperandVisitor extends VoidVisitorAdapter<Void> {
 
     @Override
     public void visit(ClassOrInterfaceType n, Void arg) {
-        addToMap(operands, n.asString(), n.getClass().getSimpleName());
+        addToMap(operands, n.getName().toString(), n.getClass().getSimpleName());
         super.visit(n, arg);
     }
 
@@ -116,7 +115,7 @@ public class OperandVisitor extends VoidVisitorAdapter<Void> {
 
     @Override
     public void visit(ObjectCreationExpr n, Void arg) {
-        addToMap(operands, n.getType().toString(), n.getClass().getSimpleName());
+        addToMap(operands, n.getType().getName().toString(), n.getClass().getSimpleName());
         n.getType().accept(this, arg);
         super.visit(n, arg);
     }
@@ -134,12 +133,6 @@ public class OperandVisitor extends VoidVisitorAdapter<Void> {
     }
 
     @Override
-    public void visit(ThrowStmt n, Void arg) {
-        addToMap(operands, n.getExpression().toString(), n.getClass().getSimpleName());
-        super.visit(n, arg);
-    }
-
-    @Override
     public void visit(FieldAccessExpr n, Void arg) {
         addToMap(operands, n.getNameAsString(), n.getClass().getSimpleName());
         super.visit(n, arg);
@@ -147,16 +140,9 @@ public class OperandVisitor extends VoidVisitorAdapter<Void> {
 
     @Override
     public void visit(MethodCallExpr n, Void arg) {
-        if (!currentMethodName.isEmpty()) {  // Ensure we are within a method context
-            String methodCall = n.getNameAsString();  // Get the method name
+        if (!currentMethodName.isEmpty()) {
+            String methodCall = n.getNameAsString();
             addToMap(operands, methodCall, n.getClass().getSimpleName());
-            // Also consider capturing the scope of the method call (like System.out)
-            if (n.getScope().isPresent()) {
-                var nodes = n.getScope().get().getChildNodes();
-                if (nodes.size() > 1) {
-                    addToMap(operands, nodes.get(1).toString(), n.getClass().getSimpleName());
-                }
-            }
         }
         super.visit(n, arg);
     }
