@@ -92,6 +92,6 @@ plt.subplots_adjust(hspace=0.3)
 plt.tight_layout()
 
 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-filename = f'./plots/plot_quantiles_{timestamp}.png'
+filename = f'./plots/plot_quantiles_for_components_{timestamp}.png'
 
 plt.savefig(filename)
