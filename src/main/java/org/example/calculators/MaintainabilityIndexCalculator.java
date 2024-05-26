@@ -17,10 +17,7 @@ public class MaintainabilityIndexCalculator {
         }
         var loc = LinesOfCodeCalculator.getLOCForClassMethod(cu, className, method.methodName());
         var cc = CyclomaticComplexityCalculator.calculateCyclomaticComplexityForClassMethod(cu, className, method.methodName());
-        var microsoftMi = (int) ((171.0 - 5.2 * Math.log(halsteadVolume) - 0.23 * cc - 16.2 * Math.log(loc)) * (100.0 / 171.0));
-        if (microsoftMi < 0) {
-            throw new IllegalStateException("microsoftMi is equal or less than 0");
-        }
+        var microsoftMi = (int) Math.max(0, ((171.0 - 5.2 * Math.log(halsteadVolume) - 0.23 * cc - 16.2 * Math.log(loc)) * (100.0 / 171.0)));
         var grade = "G";
         if (microsoftMi <= 10) {
             grade = "R";
