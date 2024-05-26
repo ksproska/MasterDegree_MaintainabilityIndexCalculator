@@ -6,12 +6,22 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 
+translation_map = {
+    'Halstead Volume': 'Objętość Halsteada',
+    'Cyclomatic Complexity (CC)': 'Złożoność Cyklomatyczna (CC)',
+    'Lines Of Code (LOC)': 'Liczba Linii Kodu (LOC)',
+    'Microsoft Maintainability Index (MI)': 'Indeks Utrzymywalności (MI)',
+    'Maintainability Index (MI) - calculated': 'Wyliczony Indeks Utrzymywalności (MI)'
+}
+
+
 def create_histograms_for_all_metrics(csv_filepath, output_filepath):
     data = pd.read_csv(csv_filepath)
     metrics = ['Halstead Volume', 'Cyclomatic Complexity (CC)', 'Lines Of Code (LOC)',
                'Microsoft Maintainability Index (MI)']
     data['Halstead Volume'] = data['Halstead Volume'].round().astype(int)
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 6))
+
     axes = axes.flatten()
     for i, metric in enumerate(metrics):
         unique_values = data[metric].nunique()
@@ -28,11 +38,14 @@ def create_histograms_for_all_metrics(csv_filepath, output_filepath):
         else:
             axes[i].hist(data[metric], bins=unique_values, alpha=0.6, color='blue', edgecolor='black')
 
-        axes[i].set_title(metric)
-        axes[i].set_xlabel('Value Range')
-        axes[i].set_ylabel('Frequency')
+        axes[i].set_title(f'{translation_map[metric]}')
+        axes[i].set_xlabel('Wartość metryki')
+        axes[i].set_ylabel('Częstotliwość')
         axes[i].set_yscale('log')
     plt.tight_layout()
+
+    fig.suptitle('Histogramy metryk', fontsize=16)
+    plt.subplots_adjust(top=0.9)
 
     plt.savefig(output_filepath)
     plt.close(fig)
@@ -52,7 +65,7 @@ def plot_percentage_for_thresholds(csv_filepath, output_filepath):
         mi_percentages[mi_value] = (len(filtered_data) / total_records) * 100
     mi_values = list(mi_percentages.keys())
     percentages = list(mi_percentages.values())
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 5))
     plt.plot(mi_values, percentages, color='blue', marker='.', linestyle='--', linewidth=0.6)
     for mi, percentage in zip(mi_values, percentages):
         if mi % 5 == 0:
@@ -67,9 +80,9 @@ def plot_percentage_for_thresholds(csv_filepath, output_filepath):
                          textcoords="offset points",
                          xytext=(0, 10),
                          ha='center')
-    plt.xlabel('Microsoft Maintainability Index (MI)')
-    plt.ylabel('Percentage of Records below threshold MI value (%)')
-    plt.title('Cumulative Percentage of Records by MI Value')
+    plt.xlabel(translation_map['Microsoft Maintainability Index (MI)'])
+    plt.ylabel('Procent badanych metod (%)')
+    plt.title('Procent badanych metod mających wartość MI poniżej wartości progowej')
     plt.xticks(range(10, 51, 5))
     plt.grid(True, which='both', linestyle='--', linewidth=0.3)
     plt.savefig(output_filepath)
@@ -83,7 +96,7 @@ def plot_quantile_threshold_for_mi(csv_filepath, output_filepath):
     quantile_df = pd.DataFrame(index=quantile_values, columns=[metric])
     for q in quantile_values:
         quantile_df.loc[q, metric] = data[metric].quantile(q)
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(8, 5))
     plt.plot(quantile_df.index, quantile_df[metric], linestyle='-')
 
     annotate_value(10, 'tab:red', quantile_df, metric)
@@ -92,9 +105,9 @@ def plot_quantile_threshold_for_mi(csv_filepath, output_filepath):
     annotate_value(30, 'tab:blue', quantile_df, metric)
     annotate_value(35, 'tab:blue', quantile_df, metric)
     annotate_value(40, 'tab:blue', quantile_df, metric)
-    plt.title('Quantile Plot of Microsoft Maintainability Index (MI)')
-    plt.xlabel('Quantile')
-    plt.ylabel(metric)
+    plt.title('Diagram kwantyli dla metryki MI')
+    plt.xlabel('Kwantyl')
+    plt.ylabel(translation_map[metric])
     plt.grid(True)
     plt.savefig(output_filepath)
     print(f'Plot saved as {output_filepath}')
@@ -107,7 +120,7 @@ def annotate_value(value, color, quantile_df, metric):
         plt.plot(q, value, marker='o', color=color)
         plt.annotate(
             f'{q:.5f}',
-            xy=(q + 0.001, value - 2),
+            xy=(q + 0.0015, value - 2),
             ha='center'
         )
 
@@ -150,9 +163,9 @@ def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_f
         if not quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 20].empty else None
     for i, metric in enumerate(metrics_to_display):
         ax[i].plot(quantile_df.index, quantile_df[metric])
-        ax[i].set_title(metric)
-        ax[i].set_xlabel('Quantile')
-        ax[i].set_ylabel(metric)
+        ax[i].set_title(translation_map[metric])
+        ax[i].set_xlabel('Kwantyl')
+        ax[i].set_ylabel('Wartość metryki')
         ax[i].grid(True)
         for q in annotation_indices:
             ax[i].plot(q, quantile_df.loc[q, metric], marker='o', color='tab:blue')
@@ -162,7 +175,7 @@ def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_f
                 textcoords="offset points",
                 xytext=(0, 5),
                 ha='center',
-                fontsize=7
+                fontsize=8
             )
         ax[i].plot(special_index_10, quantile_df.loc[special_index_10, metric], marker='o', color='tab:red')
         ax[i].annotate(
@@ -171,7 +184,7 @@ def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_f
             textcoords="offset points",
             xytext=(0, 5),
             ha='center',
-            fontsize=7
+            fontsize=8
         )
         ax[i].plot(special_index_20, quantile_df.loc[special_index_20, metric], marker='o', color='tab:orange')
         ax[i].annotate(
@@ -180,10 +193,14 @@ def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_f
             textcoords="offset points",
             xytext=(0, 5),
             ha='center',
-            fontsize=7
+            fontsize=8
         )
     plt.subplots_adjust(hspace=0.3)
     plt.tight_layout()
+
+    fig.suptitle('Diagramy kwantyli dla metryk', fontsize=16)
+    plt.subplots_adjust(top=0.9)
+
     plt.savefig(output_filepath)
     print(f'Plot saved as {output_filepath}')
 
@@ -195,7 +212,7 @@ def calculate_maintainability_index(halstead_volume, cc, loc):
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     csv_file = 'raport.csv'
-    plot_percentage_for_thresholds(csv_file, f'./plots/plot_cumulative_percentage_by_mi_{timestamp}.png')
-    create_histograms_for_all_metrics(csv_file, f'./plots/plot_output_{timestamp}.png')
-    plot_quantile_threshold_for_mi(csv_file, f'./plots/plot_quantiles_for_mi_{timestamp}.png')
-    plot_calculated_mi_from_component_quantile_thresholds(csv_file,f'./plots/plot_quantiles_for_components_{timestamp}.png')
+    create_histograms_for_all_metrics(csv_file, f'./plots/plot_histograms_for_all_metrics.png')
+    plot_percentage_for_thresholds(csv_file, f'./plots/plot_cumulative_percentage_by_mi.png')
+    plot_calculated_mi_from_component_quantile_thresholds(csv_file,f'./plots/plot_quantiles_for_components.png')
+    plot_quantile_threshold_for_mi(csv_file, f'./plots/plot_quantiles_for_mi.png')
