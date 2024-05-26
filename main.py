@@ -222,10 +222,10 @@ def plot_original_projects_percentage(csv_filepath, output_filepath):
     sorted_folders = sorted(folder_counts.items(), key=lambda x: x[1], reverse=True)
     folders, counts = zip(*sorted_folders)
     fig, ax = plt.subplots(figsize=(8, 7))
-    ax.pie(counts, labels=folders, autopct='%1.1f%%', startangle=90)
+    ax.pie(counts, labels=folders, autopct='%1.1f%%', startangle=90, textprops={'size': 20})
     ax.axis('equal')
-    plt.title('Źródła pochodzenia analizowanych metod')
-    plt.savefig(output_filepath)
+    # plt.title('Źródła pochodzenia analizowanych metod')
+    plt.savefig(output_filepath, bbox_inches='tight')
     print(f'Plot saved as {output_filepath}')
 
 
