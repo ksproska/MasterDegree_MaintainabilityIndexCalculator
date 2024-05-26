@@ -6,3 +6,5 @@
 ![](plots/plot_quantiles_for_components.png)
 
 ![](plots/plot_quantiles_for_mi.png)
+
+![](plots/plot_original_project_percentage.png)

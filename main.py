@@ -1,10 +1,11 @@
+import csv
 import math
+from collections import defaultdict
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-
 
 translation_map = {
     'Halstead Volume': 'Objętość Halsteada',
@@ -209,6 +210,25 @@ def calculate_maintainability_index(halstead_volume, cc, loc):
     return int(max(0, (171.0 - 5.2 * math.log(halstead_volume) - 0.23 * cc - 16.2 * math.log(loc)) * (100.0 / 171.0)))
 
 
+def plot_original_projects_percentage(csv_filepath, output_filepath):
+    folder_counts = defaultdict(int)
+    with open(csv_filepath, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+
+        for row in csv_reader:
+            original_path = row['OriginalFilePath']
+            folder_name = original_path.split('/')[4]
+            folder_counts[folder_name] += 1
+    sorted_folders = sorted(folder_counts.items(), key=lambda x: x[1], reverse=True)
+    folders, counts = zip(*sorted_folders)
+    fig, ax = plt.subplots(figsize=(8, 7))
+    ax.pie(counts, labels=folders, autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')
+    plt.title('Źródła pochodzenia analizowanych metod')
+    plt.savefig(output_filepath)
+    print(f'Plot saved as {output_filepath}')
+
+
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     csv_file = 'raport.csv'
@@ -216,3 +236,4 @@ if __name__ == '__main__':
     plot_percentage_for_thresholds(csv_file, f'./plots/plot_cumulative_percentage_by_mi.png')
     plot_calculated_mi_from_component_quantile_thresholds(csv_file,f'./plots/plot_quantiles_for_components.png')
     plot_quantile_threshold_for_mi(csv_file, f'./plots/plot_quantiles_for_mi.png')
+    plot_original_projects_percentage(csv_file, f'./plots/plot_original_project_percentage.png')
