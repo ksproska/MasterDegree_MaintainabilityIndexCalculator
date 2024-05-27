@@ -9,4 +9,4 @@
 
 ![](plots/plot_original_project_percentage.png)
 
-![](form_results/results.png)
+![](form_results/form_results.png)

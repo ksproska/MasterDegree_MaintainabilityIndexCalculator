@@ -23,6 +23,6 @@ ax.set_xlabel('Liczba odpowiedzi')
 ax.set_ylabel('Wartość MI funkcji')
 ax.legend(title='Odpowiedzi', labels=['Łatwy', 'Średni', 'Trudny'])
 
-output_filepath = "results.png"
+output_filepath = "form_results.png"
 plt.savefig(output_filepath, bbox_inches='tight')
 print(f'Plot saved as {output_filepath}')
