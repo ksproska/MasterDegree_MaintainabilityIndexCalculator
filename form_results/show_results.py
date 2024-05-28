@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 file_path = 'results.csv'
@@ -24,5 +25,31 @@ ax.set_ylabel('Wartość MI funkcji')
 ax.legend(title='Odpowiedzi', labels=['Łatwy', 'Średni', 'Trudny'])
 
 output_filepath = "form_results.png"
+plt.savefig(output_filepath, bbox_inches='tight')
+print(f'Plot saved as {output_filepath}')
+
+weighted_counts = counts.copy()
+weighted_counts.loc[1] *= 0
+weighted_counts.loc[2] *= 0.5
+weighted_counts.loc[3] *= 1
+
+final_values = weighted_counts.sum()
+
+x = np.array([int(i) for i in final_values.index])
+y = final_values.values
+fit = np.polyfit(x, y, 1)
+fit_fn = np.poly1d(fit)
+
+plt.figure(figsize=(10, 5))
+plt.plot(final_values.index, final_values.values, 'bo-', label='Ważone oceny')
+plt.plot(x, fit_fn(x), 'r--', label='Linia trendu')
+
+plt.xlabel('Indeks Utrzymywalności (MI)')
+plt.ylabel('Waga')
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.legend()
+
+output_filepath = "form_results_2.png"
 plt.savefig(output_filepath, bbox_inches='tight')
 print(f'Plot saved as {output_filepath}')
