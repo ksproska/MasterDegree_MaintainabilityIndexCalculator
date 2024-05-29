@@ -36,24 +36,28 @@ weighted_counts.loc[3] *= 1
 final_values = weighted_counts.sum()
 
 x = np.array([int(i) for i in final_values.index])
-y = final_values.values
+y = 100 * (final_values.values / float(len(x)))
+
 fit = np.polyfit(x, y, 1)
 fit_fn = np.poly1d(fit)
 
-target_y_values = [0, 3.5, 7, 10.5, 14]
+target_y_values = [0, 50, 100]
+colors = ['green', '#cb8300', 'red']
 
 x_values_for_target_y = [(target - fit[1]) / fit[0] for target in target_y_values]
 
-plt.figure(figsize=(8, 5))
-plt.plot(final_values.index, final_values.values, 'o', label='Waga')
-plt.plot(x, fit_fn(x), 'r', label='Linia trendu')
+plt.figure(figsize=(10, 6))
+plt.plot(x, y, 'o', label='Procent odpowiedzi')
+plt.plot(x, fit_fn(x), 'black', label='Linia trendu', linewidth=0.5)
 
-plt.plot(x_values_for_target_y, target_y_values, "o-", color='red')
-for x_val, y_val in zip(x_values_for_target_y, target_y_values):
-    plt.annotate(f'{x_val:.1f}', (x_val, y_val), textcoords="offset points", xytext=(0, 10), ha='center')
+plt.plot(x_values_for_target_y, target_y_values, "-", color='black', linewidth=0.5)
+for x_val, y_val, color in zip(x_values_for_target_y, target_y_values, colors):
+    plt.plot(x_val, y_val, "o", color=color)
+    plt.annotate(f'{x_val:.1f}', (x_val, y_val), textcoords="offset points", xytext=(8, 8), ha='center', color=color)
 plt.xlabel('Indeks Utrzymywalności (MI)')
-plt.ylabel('Waga')
-plt.xticks(rotation=45)
+plt.ylabel('Procent odpowiedzi (%)')
+plt.xticks(np.arange(0, 100 + 1, 10))
+plt.yticks(np.arange(0, 100 + 1, 25))
 plt.grid(True)
 plt.legend()
 

@@ -10,3 +10,5 @@
 ![](plots/plot_original_project_percentage.png)
 
 ![](form_results/form_results.png)
+
+![](form_results/form_results_trend_line.png)
