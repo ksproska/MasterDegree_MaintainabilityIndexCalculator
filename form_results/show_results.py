@@ -40,16 +40,23 @@ y = final_values.values
 fit = np.polyfit(x, y, 1)
 fit_fn = np.poly1d(fit)
 
-plt.figure(figsize=(10, 5))
-plt.plot(final_values.index, final_values.values, 'bo-', label='Ważone oceny')
-plt.plot(x, fit_fn(x), 'r--', label='Linia trendu')
+target_y_values = [0, 3.5, 7, 10.5, 14]
 
+x_values_for_target_y = [(target - fit[1]) / fit[0] for target in target_y_values]
+
+plt.figure(figsize=(8, 5))
+plt.plot(final_values.index, final_values.values, 'o', label='Waga')
+plt.plot(x, fit_fn(x), 'r', label='Linia trendu')
+
+plt.plot(x_values_for_target_y, target_y_values, "o-", color='red')
+for x_val, y_val in zip(x_values_for_target_y, target_y_values):
+    plt.annotate(f'{x_val:.1f}', (x_val, y_val), textcoords="offset points", xytext=(0, 10), ha='center')
 plt.xlabel('Indeks Utrzymywalności (MI)')
 plt.ylabel('Waga')
 plt.xticks(rotation=45)
 plt.grid(True)
 plt.legend()
 
-output_filepath = "form_results_2.png"
+output_filepath = "form_results_trend_line.png"
 plt.savefig(output_filepath, bbox_inches='tight')
 print(f'Plot saved as {output_filepath}')
