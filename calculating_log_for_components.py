@@ -29,15 +29,15 @@ def main():
     ]
 
     threshold_log_metrics_names = [
-        "1 odchylenia standardowe od średniej",
-        "2 odchylenia standardowe od średniej",
-        "3 odchylenie standardowe od średniej"
+        "Wartość metryki dla 1 odch. stand. od śred.",
+        "Wartość metryki dla 2 odch. stand. od śred.",
+        "Wartość metryki dla 3 odch. stand. od śred."
     ]
 
     threshold_log_metrics_colors = [
-        "red",
+        "green",
         "orange",
-        "green"
+        "red"
     ]
 
     constant_for_0_values = 0.0001
@@ -60,9 +60,18 @@ def main():
         counts_threshold_log_metrics = []
         for threshold, threshold_name in zip(threshold_log_metrics, threshold_log_metrics_names):
             idx = (np.abs(unique_values - threshold)).argmin()
-            count_at_threshold = counts[idx]
-            counts_threshold_log_metrics.append(count_at_threshold)
+            if unique_values[idx] != threshold:
+                close_indices = np.where((unique_values >= threshold - 0.3) & (unique_values <= threshold + 0.3))[0]
+                if close_indices.size > 0:
+                    avg_count = np.mean(counts[close_indices])
+                else:
+                    avg_count = 0
+            else:
+                avg_count = counts[idx]
+
+            counts_threshold_log_metrics.append(avg_count)
             values_for_thresholds[threshold_name].append(np.exp(threshold) - constant_for_0_values)
+
         log_metric_map[metric] = (unique_values, counts, mean_log_metric, std_log_metric, counts_threshold_log_metrics)
 
     plt.figure(figsize=(12, 10))
@@ -70,7 +79,7 @@ def main():
     for i, metric in enumerate(metrics, start=1):
         unique_values, counts, mean, std, counts_threshold_log_metrics = log_metric_map[metric]
         plt.subplot(2, 2, i)
-        plt.plot(unique_values, counts)
+        plt.plot(unique_values, counts, label="Wartości metryki")
         plt.axvline(x=mean, color='r', linestyle='--', linewidth=2, label='Średnia')
 
         threshold_log_metrics = [
@@ -79,17 +88,14 @@ def main():
             mean + 3 * std
         ]
 
-        plt.plot(threshold_log_metrics, counts_threshold_log_metrics, marker='o', color='red', linestyle='None',
-                 label=f'Wartości metryki po odwróceniu transformacji')
-
-        for threshold, threshold_name, threshold_color in zip(threshold_log_metrics, threshold_log_metrics_names,
-                                                              threshold_log_metrics_colors):
-            plt.axvline(x=threshold, color=threshold_color, linestyle='--', linewidth=1, label=threshold_name)
-            idx = (np.abs(unique_values - threshold)).argmin()
-            count_at_threshold = counts[idx]
+        for threshold, threshold_count, threshold_name, threshold_color in zip(
+                threshold_log_metrics, counts_threshold_log_metrics, threshold_log_metrics_names, threshold_log_metrics_colors):
+            plt.axvline(x=threshold, color=threshold_color, linestyle='--', linewidth=1)
+            plt.plot(threshold, threshold_count, marker='o', color=threshold_color, linestyle='None',
+                     label=threshold_name)
             plt.annotate(
                 f'{np.exp(threshold) - constant_for_0_values:.1f}',
-                xy=(threshold, count_at_threshold),
+                xy=(threshold, threshold_count),
                 textcoords="offset points",
                 xytext=(0, 10),
                 ha='center'
@@ -102,16 +108,21 @@ def main():
 
     plt.subplot(2, 2, 4)
     unique_values, counts = np.unique(data["Microsoft Maintainability Index (MI)"], return_counts=True)
-    plt.plot(unique_values, counts)
+    plt.plot(unique_values, counts, label="Wartości metryki")
 
     for threshold_name, threshold_color in zip(threshold_log_metrics_names[::-1], threshold_log_metrics_colors[::-1]):
         hv, cc, loc = values_for_thresholds[threshold_name]
         mi = calculate_maintainability_index(hv, cc, loc)
-        plt.axvline(x=mi, color=threshold_color, linestyle='--', linewidth=1, label=threshold_name)
+        plt.axvline(x=mi, color=threshold_color, linestyle='--', linewidth=1)
+
+        idx = (np.abs(unique_values - mi)).argmin()
+        plt.plot(unique_values[idx], counts[idx], 'o', color=threshold_color, label=threshold_name)  # Plot the point
+        plt.annotate(f'{unique_values[idx]:.1f}', (unique_values[idx], counts[idx]), textcoords="offset points",
+                     xytext=(0, 10), ha='center')
 
     plt.tight_layout()
 
-    plt.title(translation_map["Microsoft Maintainability Index (MI)"])
+    plt.title(translation_map["Maintainability Index (MI) - calculated"])
     plt.xlabel('Wartość metryki')
     plt.ylabel('Liczność')
     plt.legend()
