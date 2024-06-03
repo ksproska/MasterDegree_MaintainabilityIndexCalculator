@@ -5,6 +5,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+translation_map = {
+    'Halstead Volume': 'Objętość Halsteada',
+    'Cyclomatic Complexity (CC)': 'Złożoność Cyklomatyczna (CC)',
+    'Lines Of Code (LOC)': 'Liczba Linii Kodu (LOC)',
+    'Microsoft Maintainability Index (MI)': 'Indeks Utrzymywalności (MI)',
+    'Maintainability Index (MI) - calculated': 'Wyliczony Indeks Utrzymywalności (MI)'
+}
+
+
+
 def calculate_maintainability_index(halstead_volume, cc, loc):
     return int(171.0 - 5.2 * math.log(halstead_volume) - 0.23 * cc - 16.2 * math.log(loc)) * (100.0 / 171.0)
 
@@ -70,7 +80,7 @@ def main():
         ]
 
         plt.plot(threshold_log_metrics, counts_threshold_log_metrics, marker='o', color='red', linestyle='None',
-                 label=f'Wartości MI po odwróceniu transformacji')
+                 label=f'Wartości metryki po odwróceniu transformacji')
 
         for threshold, threshold_name, threshold_color in zip(threshold_log_metrics, threshold_log_metrics_names,
                                                               threshold_log_metrics_colors):
@@ -85,9 +95,9 @@ def main():
                 ha='center'
             )
 
-        plt.title(metric)
-        plt.xlabel('Log of Metric Values')
-        plt.ylabel('Counts')
+        plt.title(translation_map[metric])
+        plt.xlabel('Transformacja logarytmiczna metryki')
+        plt.ylabel('Liczność')
         plt.legend()
 
     plt.subplot(2, 2, 4)
@@ -101,9 +111,9 @@ def main():
 
     plt.tight_layout()
 
-    plt.title("Microsoft Maintainability Index (MI)")
-    plt.xlabel('Log of Metric Values')
-    plt.ylabel('Counts')
+    plt.title(translation_map["Microsoft Maintainability Index (MI)"])
+    plt.xlabel('Wartość metryki')
+    plt.ylabel('Liczność')
     plt.legend()
     plt.savefig("./plots/plot_log_transformation_for_components.png")
 
