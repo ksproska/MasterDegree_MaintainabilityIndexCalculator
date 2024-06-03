@@ -8,7 +8,9 @@ data = pd.read_csv('raport.csv')
 
 metric_name = "Microsoft Maintainability Index (MI)"
 metric_name_short = "MI"
-log_metric = np.log(data[metric_name])
+constant_for_0_values = 0.0001
+
+log_metric = np.log(data[metric_name] + constant_for_0_values)
 unique_values, counts = np.unique(log_metric, return_counts=True)
 skewness = log_metric.skew()
 
@@ -50,7 +52,7 @@ for threshold in threshold_log_metrics:
     idx = (np.abs(unique_values - threshold)).argmin()
     count_at_threshold = counts[idx]
     plt.annotate(
-        f'{np.exp(threshold):.1f}',
+        f'{np.exp(threshold) - constant_for_0_values:.1f}',
         xy=(threshold, count_at_threshold),
         textcoords="offset points",
         xytext=(0, 10),
@@ -61,5 +63,5 @@ plt.axvline(x=mean_log_metric, color='r', linestyle='--', linewidth=2, label='Me
 plt.legend()
 
 plt.savefig("./plots/plot_" + metric_name_short + ".png")
-threshold_log_metrics = np.exp(threshold_log_metrics)
+threshold_log_metrics = np.exp(threshold_log_metrics) - constant_for_0_values
 pprint(threshold_log_metrics)
