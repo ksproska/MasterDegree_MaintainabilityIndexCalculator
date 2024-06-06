@@ -3,12 +3,10 @@ import difflib
 import re
 
 
-def get_directories_and_common_files(base_path):
-    directories = [os.path.join(base_path, d) for d in os.listdir(base_path) if
-                   os.path.isdir(os.path.join(base_path, d))]
+def get_directories_and_common_files(base_path, subfolder1, subfolder2):
+    directories = [f'{base_path}/{subfolder1}', f'{base_path}/{subfolder2}']
 
     file_paths = {}
-
     for directory in directories:
         for root, _, files in os.walk(directory):
             for file in files:
@@ -19,8 +17,7 @@ def get_directories_and_common_files(base_path):
                     file_paths[rel_path] = {directory}
 
     common_files = [path for path, dirs in file_paths.items() if len(dirs) == len(directories)]
-
-    return directories, common_files
+    return common_files
 
 
 def parse_method_blocks(lines):
@@ -100,22 +97,31 @@ def compare_java_files(file1, file2):
 
 
 def main():
-    base_path = 'elasticsearch'
+    repo_name = 'elasticsearch'
+    base_path = 'roc_curve/' + repo_name
     all_records = ["repository,change_from,change_to,file,method,added,deleted,modified,was_changed"]
-    directories, common_files = get_directories_and_common_files(base_path)
-    for file in common_files:
-        files_to_compare = []
-        for directory in directories:
-            f = f'{directory}/{file}'
-            files_to_compare.append(f)
-        changes = compare_java_files(files_to_compare[0], files_to_compare[1])
-        change1 = directories[0].replace(f"{base_path}/", "")
-        change2 = directories[1].replace(f"{base_path}/", "")
-        for change in changes:
-            added, deleted, modified, was_changed = changes[change]
-            record_line = f"{base_path},{change1},{change2},{file},{change},{added},{deleted},{modified},{was_changed}"
-            all_records.append(record_line)
-    with open(f"changes.csv", mode="w") as w:
+    commits = [
+        'e6b43a17099eff099a05572ff0b2724485e54211',  # 8.13.4 - Fix BlockHash DirectEncoder (#108283)
+        '7eae95620b41c8c42a647b059b096703b4d510f4',  # 8.13.3 - [ci] Move multi-node tests from check part2 to part5 (#107553)
+        '95c7c0978020de5bac685802655bfab3f475e628',  # 8.13.2 - Downgrade the bundled JDK to JDK 21.0.2 (#107140)
+        'f7fedb4d0aec5dc60bf52bb4c460584d08a236ce',  # 8.13.1 - Fix downsample persistent task params serialization bwc (#106878)
+        '93a21e1b14c6ca611b477360c7c7f65846bd364e'   # 8.13.0 - AwaitsFix for #106618
+    ]
+
+    for i in range(len(commits) - 1):
+        commit1 = commits[i]
+        commit2 = commits[i + 1]
+
+        common_files = get_directories_and_common_files(base_path, commit1, commit2)
+        for file in common_files:
+            files_to_compare = [f'{base_path}/{commit1}/{file}', f'{base_path}/{commit2}/{file}']
+            changes = compare_java_files(files_to_compare[0], files_to_compare[1])
+            for change in changes:
+                added, deleted, modified, was_changed = changes[change]
+                record_line = f"{base_path},{commit1},{commit2},{file},{change},{added},{deleted},{modified},{was_changed}"
+                all_records.append(record_line)
+
+    with open(f"roc_curve/change_data.csv", mode="w") as w:
         for line in all_records:
             w.write(line + "\n")
 

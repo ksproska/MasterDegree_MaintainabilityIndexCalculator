@@ -13,8 +13,8 @@ def list_java_changes(repo_path, commit1, commit2):
 def save_file_at_revision(repo_name, repo_path, revision, filepath):
     file_spec = f"{revision}:{filepath}"
     filename = filepath.replace("benchmarks/", "")
-    os.makedirs(f"/home/kamilasproska/IdeaProjects/javaParser/{repo_name}/{revision}/{os.path.dirname(filename)}", exist_ok=True)
-    output_filename = f"/home/kamilasproska/IdeaProjects/javaParser/{repo_name}/{revision}/{filename}"
+    os.makedirs(f"/home/kamilasproska/IdeaProjects/javaParser/roc_curve/{repo_name}/{revision}/{os.path.dirname(filename)}", exist_ok=True)
+    output_filename = f"/home/kamilasproska/IdeaProjects/javaParser/roc_curve/{repo_name}/{revision}/{filename}"
     cmd = ["git", "-C", repo_path, "show", file_spec]
 
     try:

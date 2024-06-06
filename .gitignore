@@ -42,3 +42,5 @@ build/
 /java_files_list.txt
 /java_files_list_*.txt
 /form_results/results.csv
+/roc_curve/elasticsearch/
+/roc_curve/change_data.csv
