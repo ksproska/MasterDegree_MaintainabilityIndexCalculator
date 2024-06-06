@@ -21,7 +21,6 @@ def save_file_at_revision(repo_name, repo_path, revision, filepath):
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
         with open(output_filename, 'w') as f:
             f.write(result.stdout)
-        print(f"File saved as {output_filename}")
     except subprocess.CalledProcessError as e:
         print(f"Error: {e.stderr}")
 
@@ -29,14 +28,22 @@ def save_file_at_revision(repo_name, repo_path, revision, filepath):
 def main():
     repo_name = 'elasticsearch'
     repo_path = '/home/kamilasproska/IdeaProjects/' + repo_name
-    commit1 = 'e6b43a17099eff099a05572ff0b2724485e54211'
-    commit2 = '7eae95620b41c8c42a647b059b096703b4d510f4'
-    java_files_changed = list_java_changes(repo_path, commit1, commit2)
-    print(java_files_changed)
+    commits = [
+        'e6b43a17099eff099a05572ff0b2724485e54211', # 8.13.4 - Fix BlockHash DirectEncoder (#108283)
+        '7eae95620b41c8c42a647b059b096703b4d510f4', # 8.13.3 - [ci] Move multi-node tests from check part2 to part5 (#107553)
+        '95c7c0978020de5bac685802655bfab3f475e628', # 8.13.2 - Downgrade the bundled JDK to JDK 21.0.2 (#107140)
+        'f7fedb4d0aec5dc60bf52bb4c460584d08a236ce', # 8.13.1 - Fix downsample persistent task params serialization bwc (#106878)
+        '93a21e1b14c6ca611b477360c7c7f65846bd364e' # 8.13.0 - AwaitsFix for #106618
+    ]
 
-    for filename in java_files_changed:
-        save_file_at_revision(repo_name, repo_path, commit1, filename)
-        save_file_at_revision(repo_name, repo_path, commit2, filename)
+    for i in range(len(commits) - 1):
+        commit1 = commits[i]
+        commit2 = commits[i + 1]
+        java_files_changed = list_java_changes(repo_path, commit1, commit2)
+
+        for filename in java_files_changed:
+            save_file_at_revision(repo_name, repo_path, commit1, filename)
+            save_file_at_revision(repo_name, repo_path, commit2, filename)
 
 
 if __name__ == '__main__':
