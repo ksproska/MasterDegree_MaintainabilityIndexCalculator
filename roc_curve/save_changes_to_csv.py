@@ -99,7 +99,7 @@ def compare_java_files(file1, file2):
 def main():
     repo_name = 'elasticsearch'
     base_path = 'roc_curve/' + repo_name
-    all_records = ["repository,change_from,change_to,file,method,added,deleted,modified,was_changed"]
+    all_records = ["OriginalFilePath,method,added,deleted,modified,was_changed"]
     commits = [
         'e6b43a17099eff099a05572ff0b2724485e54211',  # 8.13.4 - Fix BlockHash DirectEncoder (#108283)
         '7eae95620b41c8c42a647b059b096703b4d510f4',  # 8.13.3 - [ci] Move multi-node tests from check part2 to part5 (#107553)
@@ -116,9 +116,9 @@ def main():
         for file in common_files:
             files_to_compare = [f'{base_path}/{commit1}/{file}', f'{base_path}/{commit2}/{file}']
             changes = compare_java_files(files_to_compare[0], files_to_compare[1])
-            for change in changes:
-                added, deleted, modified, was_changed = changes[change]
-                record_line = f"{base_path},{commit1},{commit2},{file},{change},{added},{deleted},{modified},{was_changed}"
+            for method_name in changes:
+                added, deleted, modified, was_changed = changes[method_name]
+                record_line = f"/home/kamilasproska/IdeaProjects/javaParser/{base_path}/{commit2}/{file},{method_name},{added},{deleted},{modified},{was_changed}"
                 all_records.append(record_line)
 
     with open(f"roc_curve/change_data.csv", mode="w") as w:
