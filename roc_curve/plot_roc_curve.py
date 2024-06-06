@@ -3,33 +3,50 @@ from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
 import numpy as np
 
+metrics = [
+    'Halstead Volume',
+    'Cyclomatic Complexity (CC)',
+    'Lines Of Code (LOC)',
+    'Microsoft Maintainability Index (MI)'
+]
+
+translation_map = {
+    'Halstead Volume': 'Objętość Halsteada',
+    'Cyclomatic Complexity (CC)': 'Złożoność Cyklomatyczna (CC)',
+    'Lines Of Code (LOC)': 'Liczba Linii Kodu (LOC)',
+    'Microsoft Maintainability Index (MI)': 'Indeks Utrzymywalności (MI)',
+    'Maintainability Index (MI) - calculated': 'Wyliczony Indeks Utrzymywalności (MI)'
+}
 
 metrics_df = pd.read_csv('raport.csv')
 change_df = pd.read_csv('change_data.csv')
 
 data = pd.merge(metrics_df, change_df, on='OriginalFilePath')
 
-X = data['Lines Of Code (LOC)'].values.reshape(-1, 1)
 y = data['was_changed'].values
 
-fpr, tpr, thresholds = roc_curve(y, X)
-roc_auc = auc(fpr, tpr)
+plt.figure(figsize=(10, 10))
 
-optimal_idx = np.argmax(tpr - fpr)
-optimal_threshold = thresholds[optimal_idx]
+for i, metric in enumerate(metrics, 1):
+    X = data[metric].values.reshape(-1, 1)
 
+    fpr, tpr, thresholds = roc_curve(y, X)
+    roc_auc = auc(fpr, tpr)
 
-plt.figure()
-plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
-plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-plt.scatter(fpr[optimal_idx], tpr[optimal_idx], marker='o', color='black', label='Optimal Threshold = %0.2f' % optimal_threshold)
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver Operating Characteristic')
-plt.legend(loc="lower right")
-plt.show()
+    optimal_idx = np.argmax(tpr - fpr)
+    optimal_threshold = thresholds[optimal_idx]
 
-print(f"ROC AUC: {roc_auc:.2f}")
-print(f"Optimal Threshold for LOC: {optimal_threshold}")
+    plt.subplot(2, 2, i)
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.scatter(fpr[optimal_idx], tpr[optimal_idx], marker='o', color='black',
+                label=f'Optimal Threshold = {optimal_threshold:.2f}')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Współczynnik False Positive')
+    plt.ylabel('Współczynnik True Positive')
+    plt.title(f'Krzywa ROC dla {translation_map[metric]}')
+    plt.legend(loc="lower right")
+
+plt.tight_layout()
+plt.savefig("plot_roc_curve_for_all.png", bbox_inches='tight')
