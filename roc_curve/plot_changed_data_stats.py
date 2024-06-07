@@ -22,22 +22,32 @@ def extract_id(path):
 df['Numer wersji'] = df['OriginalFilePath'].apply(extract_id)
 df['czy była wprowadzona zmiana'] = df['was_changed'].map({1: 'tak', 0: 'nie'})
 
-summary = df.groupby(['Numer wersji', 'czy była wprowadzona zmiana']).size().unstack(fill_value=0)
-ax = summary.plot(kind='bar', stacked=True)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
+summary = df.groupby(['Numer wersji', 'czy była wprowadzona zmiana']).size().unstack(fill_value=0)
+summary.plot(kind='bar', stacked=True, ax=ax1)
+
+# Add labels to the bars
 for i, (idx, row) in enumerate(summary.iterrows()):
     cum_value = 0
     for col in summary.columns:
         value = row[col]
         if col == 'tak':
-            ax.text(i, cum_value + value, int(value), ha='center', va='bottom')  # Place above the bar for 'tak'
+            ax1.text(i, cum_value + value, int(value), ha='center', va='bottom')  # Place above the bar for 'tak'
         else:
-            ax.text(i, cum_value + value/2, int(value), ha='center', va='center')  # Place inside the bar for 'nie'
+            ax1.text(i, cum_value + value / 2, int(value), ha='center', va='center')  # Place inside the bar for 'nie'
         cum_value += value
 
-plt.xlabel('Numer wersji elasticsearch')
-plt.ylabel('Liczba metod')
-plt.xticks(rotation=0)
-plt.legend(title='Czy była wprowadzona zmiana')
+ax1.set_xlabel('Numer wersji elasticsearch')
+ax1.set_ylabel('Liczba metod')
+ax1.set_title('Porównanie danych względem wersji')
+ax1.legend(title='Czy była wprowadzona zmiana')
+ax1.set_xticklabels(ax1.get_xticklabels(), rotation=0)
+
+pie_data = df['czy była wprowadzona zmiana'].value_counts()
+ax2.pie(pie_data, labels=pie_data.index, autopct='%1.1f%%', startangle=140)
+ax2.set_title('Porównanie danych dla wszystkich wersji')
+ax2.legend(title="Czy była wprowadzona zmiana")
+
 plt.tight_layout()
 plt.savefig("plot_change_data_stats.png", bbox_inches='tight')
