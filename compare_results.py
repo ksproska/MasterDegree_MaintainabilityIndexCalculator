@@ -39,7 +39,14 @@ fig, ax = plt.subplots(figsize=(8, 5))
 bar1 = ax.bar(index - bar_width/2, df['Wyliczanie pośrednie'], bar_width, label='Wyliczanie pośrednie', color='blue')
 bar2 = ax.bar(index + bar_width/2, df['Wyliczanie bezpośrednie'], bar_width, label='Wyliczanie bezpośrednie', color='green')
 bar3 = ax.bar(index + bar_width/2, df['Ankieta 50%'], bar_width, color='red')
-bar3 = ax.bar(index + bar_width/2, df['Ankieta 100%'], bar_width, color='orange')
+bar4 = ax.bar(index + bar_width/2, df['Ankieta 100%'], bar_width, color='orange')
+
+if not df['Ankieta 50%'].isna().all():
+    ankieta_50_value = df['Ankieta 50%'].dropna().iloc[0]
+    ax.axhline(y=ankieta_50_value, color='red', linestyle='--')
+if not df['Ankieta 100%'].isna().all():
+    ankieta_100_value = df['Ankieta 100%'].dropna().iloc[0]
+    ax.axhline(y=ankieta_100_value, color='orange', linestyle='--')
 
 ax.set_xlabel('Metody wyliczania metryk')
 ax.set_ylabel('Wartości brzegowe MI')
