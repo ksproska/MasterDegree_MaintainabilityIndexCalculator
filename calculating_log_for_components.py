@@ -14,9 +14,8 @@ translation_map = {
 }
 
 
-
 def calculate_maintainability_index(halstead_volume, cc, loc):
-    return int(171.0 - 5.2 * math.log(halstead_volume) - 0.23 * cc - 16.2 * math.log(loc)) * (100.0 / 171.0)
+    return (171.0 - 5.2 * math.log(halstead_volume) - 0.23 * cc - 16.2 * math.log(loc)) * (100.0 / 171.0)
 
 
 def main():
@@ -74,7 +73,7 @@ def main():
 
         log_metric_map[metric] = (unique_values, counts, mean_log_metric, std_log_metric, counts_threshold_log_metrics)
 
-    plt.figure(figsize=(12, 10))
+    plt.figure(figsize=(10, 8))
 
     for i, metric in enumerate(metrics, start=1):
         unique_values, counts, mean, std, counts_threshold_log_metrics = log_metric_map[metric]
@@ -117,8 +116,9 @@ def main():
 
         idx = (np.abs(unique_values - mi)).argmin()
         plt.plot(unique_values[idx], counts[idx], 'o', color=threshold_color, label=threshold_name)  # Plot the point
-        plt.annotate(f'{unique_values[idx]:.1f}', (unique_values[idx], counts[idx]), textcoords="offset points",
+        plt.annotate(f'{mi:.1f}', (unique_values[idx], counts[idx]), textcoords="offset points",
                      xytext=(0, 10), ha='center')
+        print(f' & {mi:.1f} \\\\')
 
     plt.tight_layout()
 

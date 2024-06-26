@@ -45,8 +45,8 @@ def create_histograms_for_all_metrics(csv_filepath, output_filepath):
         axes[i].set_yscale('log')
     plt.tight_layout()
 
-    fig.suptitle('Histogramy metryk', fontsize=16)
-    plt.subplots_adjust(top=0.9)
+    # fig.suptitle('Histogramy metryk', fontsize=16)
+    # plt.subplots_adjust(top=0.9)
 
     plt.savefig(output_filepath)
     plt.close(fig)
@@ -61,12 +61,12 @@ def plot_percentage_for_thresholds(csv_filepath, output_filepath):
     )
     total_records = len(data)
     mi_percentages = {}
-    for mi_value in range(10, 51):
+    for mi_value in range(10, 71):
         filtered_data = data[data['Microsoft Maintainability Index (MI)'] <= mi_value]
         mi_percentages[mi_value] = (len(filtered_data) / total_records) * 100
     mi_values = list(mi_percentages.keys())
     percentages = list(mi_percentages.values())
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(10, 4))
     plt.plot(mi_values, percentages, color='blue', marker='.', linestyle='--', linewidth=0.6)
     for mi, percentage in zip(mi_values, percentages):
         if mi % 5 == 0:
@@ -83,34 +83,41 @@ def plot_percentage_for_thresholds(csv_filepath, output_filepath):
                          ha='center')
     plt.xlabel(translation_map['Microsoft Maintainability Index (MI)'])
     plt.ylabel('Procent badanych metod (%)')
-    plt.title('Procent badanych metod mających wartość MI poniżej wartości progowej')
-    plt.xticks(range(10, 51, 5))
+    # plt.title('Procent badanych metod mających wartość MI poniżej wartości progowej')
+    plt.xticks(range(10, 71, 5))
     plt.grid(True, which='both', linestyle='--', linewidth=0.3)
+    plt.tight_layout()
     plt.savefig(output_filepath)
     print(f'Plot saved as {output_filepath}')
 
 
 def plot_quantile_threshold_for_mi(csv_filepath, output_filepath):
     metric = 'Microsoft Maintainability Index (MI)'
-    quantile_values = [round(q, 5) for q in np.arange(0, 0.025, 0.00001)]
+    quantile_values = [round(q, 5) for q in np.arange(0, 0.51, 0.00001)]
     data = pd.read_csv(csv_filepath)
     quantile_df = pd.DataFrame(index=quantile_values, columns=[metric])
     for q in quantile_values:
         quantile_df.loc[q, metric] = data[metric].quantile(q)
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(8, 4))
     plt.plot(quantile_df.index, quantile_df[metric], linestyle='-')
 
     annotate_value(10, 'tab:red', quantile_df, metric)
     annotate_value(20, 'tab:orange', quantile_df, metric)
-    annotate_value(25, 'tab:blue', quantile_df, metric)
-    annotate_value(30, 'tab:blue', quantile_df, metric)
-    annotate_value(35, 'tab:blue', quantile_df, metric)
-    annotate_value(40, 'tab:blue', quantile_df, metric)
-    plt.title('Diagram kwantyli dla metryki MI')
+    # annotate_value_for_quantile(0.01, 'tab:blue', quantile_df, metric)
+    annotate_value_for_quantile(0.1, 'tab:blue', quantile_df, metric)
+    annotate_value_for_quantile(0.2, 'tab:blue', quantile_df, metric)
+    annotate_value_for_quantile(0.3, 'tab:blue', quantile_df, metric)
+    annotate_value_for_quantile(0.4, 'tab:blue', quantile_df, metric)
+    annotate_value_for_quantile(0.5, 'tab:blue', quantile_df, metric)
+    # annotate_value(25, 'tab:blue', quantile_df, metric)
+    # annotate_value(30, 'tab:blue', quantile_df, metric)
+    # annotate_value(35, 'tab:blue', quantile_df, metric)
+    # annotate_value(40, 'tab:blue', quantile_df, metric)
+    # plt.title('Diagram kwantyli dla metryki MI')
     plt.xlabel('Kwantyl')
     plt.ylabel(translation_map[metric])
     plt.grid(True)
-    plt.savefig(output_filepath)
+    plt.savefig(output_filepath, bbox_inches='tight')
     print(f'Plot saved as {output_filepath}')
 
 
@@ -120,10 +127,25 @@ def annotate_value(value, color, quantile_df, metric):
         q = quantile_indices[0]
         plt.plot(q, value, marker='o', color=color)
         plt.annotate(
-            f'{q:.5f}',
-            xy=(q + 0.0015, value - 2),
+            f'{int(value)}',
+            xy=(q + 0.015, value - 2),
             ha='center'
         )
+
+
+def annotate_value_for_quantile(q, color, quantile_df, metric):
+    # Ensure that q is a valid index in the DataFrame
+    if q in quantile_df.index:
+        # Get the value associated with quantile q
+        value = quantile_df.loc[q, metric]
+        plt.plot(q, value, marker='o', color=color)
+        plt.annotate(
+            f'{int(value)}',
+            xy=(q + 0.015, value - 2),
+            ha='center'
+        )
+    else:
+        print(f"Quantile {q} is not a valid index in the DataFrame.")
 
 
 def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_filepath):
@@ -133,13 +155,14 @@ def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_f
         'Lines Of Code (LOC)',
         'Microsoft Maintainability Index (MI)'
     ]
-    quantile_values = [round(q, 5) for q in np.arange(0.95, 1, 0.00001)]
-    annotation_indices = [i for i in quantile_values if (i * 100) % 1 == 0]
+    quantile_values = [round(q * 100, 5) for q in np.arange(0.95, 1, 0.00001)]
+    annotation_indices = [i for i in quantile_values if i % 1 == 0]
     data = pd.read_csv(csv_filepath)
     quantile_df = pd.DataFrame(index=quantile_values, columns=metrics)
     for metric in metrics:
         for q in quantile_values:
-            quantile_df.loc[q, metric] = data[metric].quantile(q)
+            actual_quantile = q / 100  # Convert back to the range [0.95, 1.0) for calculation
+            quantile_df.loc[q, metric] = data[metric].quantile(actual_quantile)
     quantile_df['Maintainability Index (MI) - calculated'] = quantile_df.apply(
         lambda row: calculate_maintainability_index(
             row['Halstead Volume'],
@@ -158,14 +181,33 @@ def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_f
         'Lines Of Code (LOC)',
         'Maintainability Index (MI) - calculated'
     ]
-    special_index_10 = quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 10].index[0] \
-        if not quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 10].empty else None
-    special_index_20 = quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 20].index[0] \
-        if not quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 20].empty else None
+    # special_index_10 = quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 10].index[0] \
+    #     if not quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 10].empty else None
+    # special_index_20 = quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 20].index[0] \
+    #     if not quantile_df[quantile_df['Maintainability Index (MI) - calculated'] == 20].empty else None
+
+    tolerance = 0.5
+
+    special_index_10 = quantile_df[
+        (quantile_df['Maintainability Index (MI) - calculated'] >= 10 - tolerance) &
+        (quantile_df['Maintainability Index (MI) - calculated'] <= 10 + tolerance)
+        ].index.min() if not quantile_df[
+        (quantile_df['Maintainability Index (MI) - calculated'] >= 10 - tolerance) &
+        (quantile_df['Maintainability Index (MI) - calculated'] <= 10 + tolerance)
+        ].empty else None
+
+    special_index_20 = quantile_df[
+        (quantile_df['Maintainability Index (MI) - calculated'] >= 20 - tolerance) &
+        (quantile_df['Maintainability Index (MI) - calculated'] <= 20 + tolerance)
+        ].index.min() if not quantile_df[
+        (quantile_df['Maintainability Index (MI) - calculated'] >= 20 - tolerance) &
+        (quantile_df['Maintainability Index (MI) - calculated'] <= 20 + tolerance)
+        ].empty else None
+
     for i, metric in enumerate(metrics_to_display):
         ax[i].plot(quantile_df.index, quantile_df[metric])
         ax[i].set_title(translation_map[metric])
-        ax[i].set_xlabel('Kwantyl')
+        ax[i].set_xlabel('Percentyl')
         ax[i].set_ylabel('Wartość metryki')
         ax[i].grid(True)
         for q in annotation_indices:
@@ -198,16 +240,12 @@ def plot_calculated_mi_from_component_quantile_thresholds(csv_filepath, output_f
         )
     plt.subplots_adjust(hspace=0.3)
     plt.tight_layout()
-
-    fig.suptitle('Diagramy kwantyli dla metryk', fontsize=16)
-    plt.subplots_adjust(top=0.9)
-
     plt.savefig(output_filepath)
     print(f'Plot saved as {output_filepath}')
 
 
 def calculate_maintainability_index(halstead_volume, cc, loc):
-    return int(max(0, (171.0 - 5.2 * math.log(halstead_volume) - 0.23 * cc - 16.2 * math.log(loc)) * (100.0 / 171.0)))
+    return max(0, (171.0 - 5.2 * math.log(halstead_volume) - 0.23 * cc - 16.2 * math.log(loc)) * (100.0 / 171.0))
 
 
 def plot_original_projects_percentage(csv_filepath, output_filepath):
