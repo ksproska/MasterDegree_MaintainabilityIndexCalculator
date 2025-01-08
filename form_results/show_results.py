@@ -17,7 +17,7 @@ df_filtered = df_filtered.sort_index(axis=1, ascending=False)
 
 counts = df_filtered.apply(pd.Series.value_counts).fillna(0).loc[[1, 2, 3]]
 
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(10, 5))
 counts.T.plot(kind='barh', stacked=True, ax=ax, color=['green', 'orange', 'red'])
 
 ax.set_xlabel('Liczba odpowiedzi')
@@ -41,18 +41,22 @@ y = 100 * (final_values.values / float(len(x)))
 fit = np.polyfit(x, y, 1)
 fit_fn = np.poly1d(fit)
 
-target_y_values = [0, 50, 100]
-colors = ['green', '#cb8300', 'red']
+target_y_values = [0, 50]
+colors = ['orange', 'red']
+thresholds = [
+    'próg pomarańczowy - średni w utrzymaniu',
+    'próg czerwony - trudny w utrzymaniu'
+]
 
 x_values_for_target_y = [(target - fit[1]) / fit[0] for target in target_y_values]
 
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 4))
 plt.plot(x, y, 'o', label='Procent odpowiedzi')
 plt.plot(x, fit_fn(x), 'black', label='Linia trendu', linewidth=0.5)
 
 plt.plot(x_values_for_target_y, target_y_values, "-", color='black', linewidth=0.5)
-for x_val, y_val, color in zip(x_values_for_target_y, target_y_values, colors):
-    plt.plot(x_val, y_val, "o", color=color)
+for x_val, y_val, color, threshold in zip(x_values_for_target_y, target_y_values, colors, thresholds):
+    plt.plot(x_val, y_val, "o", color=color, label=threshold)
     plt.annotate(f'{x_val:.1f}', (x_val, y_val), textcoords="offset points", xytext=(8, 8), ha='center', color=color)
 plt.xlabel('Indeks Utrzymywalności (MI)')
 plt.ylabel('Procent odpowiedzi (%)')
